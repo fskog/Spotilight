@@ -1,0 +1,35 @@
+﻿@page "/spotify"
+@page "/spotify/{Token}"
+@inject Microsoft.AspNetCore.Blazor.Services.IUriHelper UriHelper
+
+<h1>Spotify Test</h1>
+<h3>Token @Token</h3>
+<SpotifyBrowse Title="Categories" Token="@Token"></SpotifyBrowse>
+
+@functions {
+    [Parameter]
+    protected string Token { get; set; }
+
+    protected override void OnInit()
+    {
+        Console.WriteLine("Token: " + Token);
+        Token = parseTokenParam();
+    }
+    protected string parseTokenParam()
+    {
+        var absoluteUri = UriHelper.GetAbsoluteUri();
+        //var paramString = absoluteUri.Replace(UriHelper.GetBaseUri(), "");
+        string[] parameters = absoluteUri.Replace(UriHelper.GetBaseUri(), "").Replace("#", "").Split('&');
+        var _token = "";
+        foreach (string param in parameters)
+        {
+            var index = param.IndexOf("token=");
+            if (index >= 0)
+            {
+                _token = param.Substring(index).Replace("token=","");
+            }
+            Console.WriteLine(_token);
+        }
+        return _token;
+    }
+}

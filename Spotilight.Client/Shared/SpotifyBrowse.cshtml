@@ -1,0 +1,70 @@
+﻿@inject HttpClient Http
+
+
+@if (isAuthorized)
+{
+    <div class="alert alert-secondary mt-4" role="alert">
+        <span class="oi oi-pencil mr-2" aria-hidden="true"></span>
+        <strong>@Title</strong>
+        <span class="text-nowrap">
+            Access Token: @Token
+        </span>
+        <button onclick="@showCategories">Get Categories</button>
+        <p>@Categories</p>
+    </div>
+}
+else
+{
+    <div class="alert alert-secondary mt-4" role="alert">
+        <span class="oi oi-pencil mr-2" aria-hidden="true"></span>
+        <p>You are not logged in to Spotify.</p>
+        <button style="background-color: #1ed760; color: white;" onclick="window.location.href='https://accounts.spotify.com/authorize?client_id=715e49c6abde406ba14a8b25fec17ca2&redirect_uri=http:%2F%2Flocalhost:53711%2Fspotify%2F&response_type=token'">Log in to Spotify</button>
+    </div>
+}
+
+@functions {
+    [Parameter]
+    private string Token { get; set; }
+
+    [Parameter]
+    string Title { get; set; }
+
+
+    string authorizeUrl = "https://accounts.spotify.com/authorize?client_id=715e49c6abde406ba14a8b25fec17ca2&redirect_uri=http:%2F%2Flocalhost:53711%2Fspotify&response_type=token";
+
+    bool isAuthorized = false;
+
+    string Categories = "";
+    protected override void OnInit()
+    {
+        if (!string.IsNullOrWhiteSpace(Token))
+        {
+            isAuthorized = true;
+            Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + Token);
+        }
+    }
+
+    private void showCategories()
+    {
+
+        getCategories();
+
+    }
+
+    private async void getCategories()
+    {
+        var categoryData = await getCategoryData();
+        //var categoryList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(categoryData);
+    }
+
+    private async Task<string> getCategoryData()
+    {
+        var responseString = await Http.GetStringAsync("https://api.spotify.com/v1/browse/categories");
+        Console.WriteLine(responseString);
+        Categories = responseString;
+        return responseString;
+    }
+
+
+
+}
